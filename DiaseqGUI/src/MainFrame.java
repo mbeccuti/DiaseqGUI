@@ -1,4 +1,5 @@
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
@@ -7,9 +8,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.prefs.Preferences;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.ListCellRenderer;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -111,9 +121,9 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        OperatorID = new javax.swing.JTextField();
+        SOperatorID = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        InputFolder = new javax.swing.JTextField();
+        SInputFolder = new javax.swing.JTextField();
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
@@ -121,9 +131,10 @@ public class MainFrame extends javax.swing.JFrame {
         jButton10 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         ProcessScrollPane1 = new javax.swing.JScrollPane();
-        ProcessPanel = new javax.swing.JPanel();
+        ProcList = new javax.swing.JList<>();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -392,12 +403,12 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(20, 10, 20, 10);
         jPanel2.add(jLabel2, gridBagConstraints);
 
-        OperatorID.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
+        SOperatorID.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(20, 10, 20, 10);
-        jPanel2.add(OperatorID, gridBagConstraints);
+        jPanel2.add(SOperatorID, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -407,15 +418,15 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(20, 10, 20, 10);
         jPanel2.add(jLabel3, gridBagConstraints);
 
-        InputFolder.setEditable(false);
-        InputFolder.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
+        SInputFolder.setEditable(false);
+        SInputFolder.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(20, 10, 20, 10);
-        jPanel2.add(InputFolder, gridBagConstraints);
+        jPanel2.add(SInputFolder, gridBagConstraints);
 
         jButton7.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/52.png"))); // NOI18N
@@ -520,21 +531,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         ProcessScrollPane1.setBorder(null);
 
-        ProcessPanel.setBackground(new java.awt.Color(255, 255, 255));
-        ProcessPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Process Status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14), new java.awt.Color(0, 0, 102))); // NOI18N
-
-        javax.swing.GroupLayout ProcessPanelLayout = new javax.swing.GroupLayout(ProcessPanel);
-        ProcessPanel.setLayout(ProcessPanelLayout);
-        ProcessPanelLayout.setHorizontalGroup(
-            ProcessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 578, Short.MAX_VALUE)
-        );
-        ProcessPanelLayout.setVerticalGroup(
-            ProcessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 324, Short.MAX_VALUE)
-        );
-
-        ProcessScrollPane1.setViewportView(ProcessPanel);
+        ProcList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Process status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 16), new java.awt.Color(0, 51, 204))); // NOI18N
+        ProcList.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
+        ProcList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        ProcessScrollPane1.setViewportView(ProcList);
 
         VerticalSplitPanel.setRightComponent(ProcessScrollPane1);
 
@@ -542,6 +542,17 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenu1.setText("File");
         jMenu1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/close.png"))); // NOI18N
+        jMenuItem3.setText("Exit");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem3);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
@@ -589,14 +600,14 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        InputFolder.setText("");
+        SInputFolder.setText("");
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
                                             
         JFileChooser openDir = new JFileChooser();
-        if (!(InputFolder.getText().equals(""))){
-            File file =new File(InputFolder.getText());
+        if (!(SInputFolder.getText().equals(""))){
+            File file =new File(SInputFolder.getText());
             if (file.isDirectory())
                 openDir.setCurrentDirectory(file);
         }
@@ -608,19 +619,77 @@ public class MainFrame extends javax.swing.JFrame {
         openDir.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (openDir.showOpenDialog(this)==JFileChooser.APPROVE_OPTION){
             File f = openDir.getSelectedFile();
-             InputFolder.setText(String.valueOf(f));
+             SInputFolder.setText(String.valueOf(f));
         }
         getPreferences().put("DiaseqGUI_open-dir",openDir.getCurrentDirectory().getAbsolutePath());
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
     
-        InputFolder.setText("");
-        OperatorID.setText("");
+        SInputFolder.setText("");
+        SOperatorID.setText("");
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+      if (GS.getScratchFolder().equals("")){
+          JOptionPane.showMessageDialog(this, "Error: Scratch folder must be specified","Error",JOptionPane.ERROR_MESSAGE);
+          OConfigurationFrame.setLocationRelativeTo(null);   
+          OConfigurationFrame.setVisible(true);
+          OParallelTextField.setText(Integer.toString(GS.getMaxSizelistProcRunning()));
+          OThreadTextField.setText(Integer.toString(GS.getDefaultThread()));
+          OScratchTextField.setText(GS.getScratchFolder());
+      }
+     else
+          if (SOperatorID.getText().equals("")){
+               JOptionPane.showMessageDialog(this, "Error: Operator ID must be specified","Error",JOptionPane.ERROR_MESSAGE);
+          }
+          else
+              if (SInputFolder.getText().equals("")){
+                  JOptionPane.showMessageDialog(this, "Error: Input folder must be specified","Error",JOptionPane.ERROR_MESSAGE);
+              }
+              else{
+                   Runtime rt = Runtime.getRuntime();
+                   try{
+                        String[] cmd = {"/bin/bash","-c"," bash ./execSMM1.sh "};
+                        cmd[2]+= "group=\\\"docker\\\""+" scratch.folder=\\\""+GS.getScratchFolder()+"\\\" data.folder=\\\""+SInputFolder.getText();
+                        cmd[2]+= " threads="+GS.getDefaultThread()+" "+SInputFolder.getText()+" >& "+SInputFolder.getText()+"/outputExecution ";
+                        if (listProcRunning.size()<GS.getMaxSizelistProcRunning()){
+                            Process pr = rt.exec(cmd); 
+                            System.out.println("Runing PID:"+ getPidOfProcess(pr)+"\n");
+                            ElProcRunning tmp= new ElProcRunning("SMM1 analysis ", SInputFolder.getText(),SOperatorID.getText(),pr,listModel.getSize());
+                            listProcRunning.add(tmp);
+                            java.net.URL imgURL = getClass().getResource("/images/running.png");
+                            ImageIcon image2 = new ImageIcon(imgURL);
+                            GL.setAvoidProcListValueChanged(-1);
+                            listModel.addElement(new ListEntry(" [Running]   "+tmp.toString(),"Running",tmp.path, image2 ));
+                            GL.setAvoidProcListValueChanged(0);
+                            if(listProcRunning.size()==1){
+                                t=new Timer();
+                                t.scheduleAtFixedRate(new MyTask(), 5000, 5000);
+                            }
+                        }                
+                        else{
+                            ElProcWaiting tmp= new ElProcWaiting("SMM1 analysis ",SInputFolder.getText(),SOperatorID.getText(),cmd,listModel.getSize());
+                            listProcWaiting.add(tmp);
+                            java.net.URL imgURL = getClass().getResource("/images/waiting.png");
+                            ImageIcon image2 = new ImageIcon(imgURL);
+                            GL.setAvoidProcListValueChanged(-1);
+                            listModel.addElement(new ListEntry(" [Waiting]   "+tmp.toString(),"Waiting",tmp.path,image2));
+                            GL.setAvoidProcListValueChanged(0);
+                            }  
+                        GL.setAvoidProcListValueChanged(-1);
+                        ProcList.setModel(listModel);
+                        ProcList.setCellRenderer(new ListEntryCellRenderer()); 
+                        GL.setAvoidProcListValueChanged(0);
+                   }
+                   catch(Exception e) {
+                        JOptionPane.showMessageDialog(this, e.toString(),"Error execution",JOptionPane.ERROR_MESSAGE);
+                        System.out.println(e.toString());
+                    }
+                   JOptionPane.showMessageDialog(this, "SMM1 analysis task was scheduled","Confermation",JOptionPane.INFORMATION_MESSAGE);
+ 
+              }
+              
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -688,6 +757,13 @@ public class MainFrame extends javax.swing.JFrame {
         configurationMenuItemActionPerformed(evt);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        formWindowClosing(null);    
+        setVisible(false);
+        dispose();
+        System.exit(0);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -726,16 +802,16 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane DataTabbedPanel;
-    private javax.swing.JTextField InputFolder;
     private javax.swing.JFrame OConfigurationFrame;
     private javax.swing.JTextField OParallelTextField;
     private javax.swing.JTextField OScratchTextField;
     private javax.swing.JTextField OThreadTextField;
-    private javax.swing.JTextField OperatorID;
-    private javax.swing.JPanel ProcessPanel;
+    private javax.swing.JList<ListEntry> ProcList;
     private javax.swing.JScrollPane ProcessScrollPane1;
+    private javax.swing.JTextField SInputFolder;
     private javax.swing.JScrollPane SMN1ScrollPane1;
     private javax.swing.JPanel SMN1analisys;
+    private javax.swing.JTextField SOperatorID;
     private javax.swing.JSplitPane VerticalSplitPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -765,6 +841,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -896,9 +973,32 @@ class GlobalSetting{
     }
 }       
        
-   
+class GlobalStatus{
+    private int ListProcStatusSelection;
+    private int AvoidProcListValueChanged; //-1 avoid  ProcListValueChanged
+    public GlobalStatus(){
+        ListProcStatusSelection=-1;
+        AvoidProcListValueChanged=0;
+    }
+ 
+    public int getListProcStatuSelection(){
+        return ListProcStatusSelection;
+    }
+    public void setListProcStatuSelection(int ListProcStatusSelection){
+     //System.out.print("Updating..."+ListProcStatusSelection+"\n");
+        this.ListProcStatusSelection=ListProcStatusSelection;
+    }
+ 
+    public int getAvoidProcListValueChanged(){
+        return AvoidProcListValueChanged;
+    }
+    public void setAvoidProcListValueChanged(int AvoidProcListValueChanged){
+        this.AvoidProcListValueChanged=AvoidProcListValueChanged;
+    }
+}
+
     GlobalSetting GS =new GlobalSetting();
-    
+    GlobalStatus GL =new GlobalStatus();
     
     
       
@@ -912,8 +1012,194 @@ class GlobalSetting{
         catch (IOException e){
             System.out.println("Docker containers were not removed\n");
         } 
-     }  
+     } 
+    
+     
+     
+    
+public class ElProcRunning {
+    public String type;
+    public String path;
+    public String id;
+    public Process pr;
+    public int  pos;
+    //constructor
+    public ElProcRunning(String type,String path, String id, Process pr,int i) {
+        this.type = type;
+        this.path = path;
+        this.pr = pr;
+        this.id=id;
+        pos=i;
+    }
+   public String toString() {
+       return new String(type+" ( data: "+path+" --- Operator ID: "+ id+" )");
+   }
+}
+
+public class ElProcWaiting {
+    public String type;
+    public String path;
+    public String id;
+    public String[] cmd;
+    public int  pos;
+    //constructor
+    public ElProcWaiting(String type, String path,String id, String[] cmd, int i) {
+        this.type = type;
+        this.path =path;
+        this.cmd = cmd;
+        this.id=id;
+        pos=i;
+    }
+    public String toString() {
+      return new String(type+" ( data: "+path+" --- Operator ID: "+ id+" )");
+   }
+} 
    
+
+class ListEntry
+{
+   private String value;
+   private ImageIcon icon;
+   private  String status;
+   private  String path;
+   private static final long serialVersionUID = 57782123311L;
+   public ListEntry(String value, String status,String path, ImageIcon icon) {
+      this.value = value;
+      this.icon = icon;
+      this.status=status;
+      this.path=path;
+   }
+  
+   public String getValue() {
+      return value;
+   }
+  
+   public ImageIcon getIcon() {
+      return icon;
+   }
+   public String getStatus() {
+      return status;
+   }
+  
+   public String getPath() {
+      return path;
+   }
+   
+   public String toString() {
+      return value;
+   }
+}
+
+     
+    ArrayList <ElProcRunning> listProcRunning =  new  ArrayList <ElProcRunning> ();
+    ArrayList <ElProcWaiting> listProcWaiting = new  ArrayList <ElProcWaiting> ();
+    DefaultListModel<ListEntry> listModel= new DefaultListModel <ListEntry> ();
+   
+    
+    public static synchronized long getPidOfProcess(Process p) {
+        long pid = -1;
+
+        try {
+            if (p.getClass().getName().equals("java.lang.UNIXProcess")) {
+                Field f = p.getClass().getDeclaredField("pid");
+                f.setAccessible(true);
+                pid = f.getLong(p);
+                f.setAccessible(false);
+            }
+        } catch (Exception e) {
+            pid = -1;
+            }
+        return pid;
+  }
+    
+   
+    
+ class MyTask extends TimerTask {
+      
+        public void run() {
+
+            //System.out.format("Checking running !%n");
+            for (int i=0;i<listProcRunning.size();i++){
+                if (listProcRunning.get(i).pr.isAlive()){
+                    //System.out.format("TRUE\n");
+                }                    
+                else
+                {
+                    //System.out.format("False\n");
+                    int index=listProcRunning.get(i).pos;
+                    java.net.URL imgURL = getClass().getResource("/images/end.png");
+                    ImageIcon image2 = new ImageIcon(imgURL);
+                    //listModel.remove(index+1);
+                    //GL.setAvoidProcListValueChanged(-1);
+                    listModel.set(index,new ListEntry(" [Finished]   " + listProcRunning.get(i).toString(), "Finished",listProcRunning.get(i).path,image2));
+                    
+                    listProcRunning.remove(i);        
+                }
+            }
+            //System.out.format("End Check!\n");    
+            //System.out.format("Checking waiting !%n");
+            while ((listProcRunning.size()<GS.getMaxSizelistProcRunning())&&(listProcWaiting.size()>0)){
+                try{
+                
+                    Runtime rt = Runtime.getRuntime();
+                    Process pr = rt.exec(listProcWaiting.get(0).cmd);
+                    ElProcRunning tmp= new ElProcRunning(listProcWaiting.get(0).type,listProcWaiting.get(0).path,listProcWaiting.get(0).id,pr,listProcWaiting.get(0).pos);
+                    listProcRunning.add(tmp);
+                    java.net.URL imgURL = getClass().getResource("/images/running.png");
+                    ImageIcon image2 = new ImageIcon(imgURL);
+                    //listModel.remove(listProcWaiting.get(0).pos);
+                    //GL.setAvoidProcListValueChanged(-1);
+                    listModel.set(listProcWaiting.get(0).pos,new ListEntry(" [Running]   " +  listProcWaiting.get(0).toString(),"Running", listProcWaiting.get(0).path,image2));
+                    listProcWaiting.remove(0);
+                    //System.out.format("Size:"+listProcRunning.size()+"\n");
+                } 
+                catch(Exception e) {
+                    JOptionPane.showMessageDialog(ProcList, e.toString(),"Error execution",JOptionPane.ERROR_MESSAGE);
+                    System.out.println(e.toString());
+                }
+            }
+            //System.out.format("End Check!\n"); 
+            if (listProcRunning.size()==0){
+                 //System.out.format("End TimerTask\n");
+                 t.cancel();
+            }
+                
+        }
+    }   
+    
+ Timer t,outputTime;
+ 
+ 
+    class ListEntryCellRenderer
+        extends JLabel implements ListCellRenderer<Object> {
+    
+     private JLabel label;
+     private static final long serialVersionUID = 5778212331L;
+     public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                 int index, boolean isSelected,
+                                                 boolean cellHasFocus) {
+        ListEntry entry = (ListEntry) value;
+  
+        setText(value.toString());
+        setIcon(entry.getIcon());
+   
+        if (isSelected) {
+            setBackground(list.getSelectionBackground());
+            setForeground(list.getSelectionForeground());
+        }
+        else {
+            setBackground(list.getBackground());
+             setForeground(list.getForeground());
+        }
+  
+        setEnabled(list.isEnabled());
+        setFont(list.getFont());
+        setOpaque(true);
+  
+        return this;
+        }
+ 
+    }
 }
 
 
