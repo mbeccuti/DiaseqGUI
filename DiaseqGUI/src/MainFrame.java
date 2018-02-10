@@ -561,7 +561,7 @@ public class MainFrame extends javax.swing.JFrame {
         SMN1analisys.add(jPanel2, gridBagConstraints);
 
         jButton9.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jButton9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/86b.png"))); // NOI18N
+        jButton9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/86.png"))); // NOI18N
         jButton9.setText(" Save conf.");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
