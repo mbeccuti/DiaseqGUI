@@ -66,12 +66,21 @@ public class MainFrame extends javax.swing.JFrame {
           OConfigurationFrame.setSize(Integer.valueOf(WindowConfWidth),Integer.valueOf(WindowConfHeight));  
         }
         else{
-            System.out.println("CIAO\n");  
           OConfigurationFrame.setSize(screenSize.width*60/100,screenSize.height*25/100);
         } 
         
+        //OUTPUT FRAME
+        int OutputframeWidth= Integer.valueOf(getPreferences().get("DiaseqGUI_WindowOutputWidth", "0"));
+        int OutputframeHeight= Integer.valueOf(getPreferences().get("DiaseqGUI_WindowOutputHeight", "0"));
         
+        if ((OutputframeWidth==0)||(OutputframeHeight==0)){
+              OutputframeWidth=screenSize.width*4/100;
+              OutputframeHeight=screenSize.height*5/100;
+        }
 
+        OutputFrame.setSize(OutputframeWidth,OutputframeHeight);
+
+        
         setLocationRelativeTo(null); 
         
         invalidate();
@@ -107,6 +116,12 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         OParallelTextField = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
+        OutputFrame = new javax.swing.JFrame();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        OutputText = new javax.swing.JTextArea();
+        ReloadOutput = new javax.swing.JButton();
+        jButton16 = new javax.swing.JButton();
+        jButton17 = new javax.swing.JButton();
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -295,6 +310,71 @@ public class MainFrame extends javax.swing.JFrame {
         );
 
         OConfigurationFrame.getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
+
+        OutputFrame.setTitle("Analysis output");
+        OutputFrame.getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+
+        OutputText.setColumns(20);
+        OutputText.setRows(5);
+        jScrollPane1.setViewportView(OutputText);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 78;
+        gridBagConstraints.ipady = 78;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        OutputFrame.getContentPane().add(jScrollPane1, gridBagConstraints);
+
+        ReloadOutput.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/reset.png"))); // NOI18N
+        ReloadOutput.setText("Reload");
+        ReloadOutput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReloadOutputActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        OutputFrame.getContentPane().add(ReloadOutput, gridBagConstraints);
+
+        jButton16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/remove.png"))); // NOI18N
+        jButton16.setText("Remove Entry");
+        jButton16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton16ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        OutputFrame.getContentPane().add(jButton16, gridBagConstraints);
+
+        jButton17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/33.png"))); // NOI18N
+        jButton17.setText("Close");
+        jButton17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton17ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        OutputFrame.getContentPane().add(jButton17, gridBagConstraints);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("DiaseqGUI");
@@ -534,6 +614,11 @@ public class MainFrame extends javax.swing.JFrame {
         ProcList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Process status", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 16), new java.awt.Color(0, 51, 204))); // NOI18N
         ProcList.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N
         ProcList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        ProcList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                ProcListValueChanged(evt);
+            }
+        });
         ProcessScrollPane1.setViewportView(ProcList);
 
         VerticalSplitPanel.setRightComponent(ProcessScrollPane1);
@@ -621,7 +706,7 @@ public class MainFrame extends javax.swing.JFrame {
             File f = openDir.getSelectedFile();
              SInputFolder.setText(String.valueOf(f));
         }
-        getPreferences().put("DiaseqGUI_open-dir",openDir.getCurrentDirectory().getAbsolutePath());
+        getPreferences().put("DiaseqGUI_open-dir",openDir.getSelectedFile().getAbsolutePath());
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
@@ -764,6 +849,227 @@ public class MainFrame extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
+    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
+    OutputFrame.setVisible(false);        // TODO add your handling code here:
+    OutputText.setText("");
+    OutputText.setEnabled(true);
+    GL.setAvoidProcListValueChanged(-1);
+    //GL.setListProcStatuSelection(-1);  
+    ProcList.clearSelection();
+    GL.setAvoidProcListValueChanged(0);
+    getPreferences().put("DiaseqGUI_WindowOutputWidth", Integer.toString(OutputFrame.getWidth()));
+    getPreferences().put("DiaseqGUI_WindowOutputHeight", Integer.toString(OutputFrame.getHeight())); 
+    outputTime.cancel();
+    }//GEN-LAST:event_jButton17ActionPerformed
+
+    private void ProcListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_ProcListValueChanged
+          
+        if (!evt.getValueIsAdjusting()){
+            
+        //System.out.println("****Open ProcListValueChanged : \n"+GL.getAvoidProcListValueChanged()+" "+GL.getListProcStatuSelection()+" "+evt.getLastIndex());
+        if ((GL.getAvoidProcListValueChanged()==-1)){
+           // GL.setAvoidProcListValueChanged(0);
+            return;
+        }
+        //if (evt.getLastIndex()<0 ||evt.getLastIndex()>=listModel.getSize()){
+        //    return;
+        //}
+  
+        if ((evt!=null)){
+        OutputFrame.pack();
+
+         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int OutputframeWidth= Integer.valueOf(getPreferences().get("DiaseqGUI_WindowOutputWidth", "0"));
+        int OutputframeHeight= Integer.valueOf(getPreferences().get("DiaseqGUI_WindowOutputHeight", "0")); 
+        if ((OutputframeWidth==0)||(OutputframeHeight==0)){
+              OutputframeWidth=screenSize.width*4/100;
+              OutputframeHeight=screenSize.height*5/100;
+        }
+
+        OutputFrame.setSize(OutputframeWidth,OutputframeHeight);
+//automatically update file
+        outputTime=new Timer();
+        outputTime.scheduleAtFixedRate(new MyFileUpdate(), 5000, 5000);
+        
+        OutputFrame.setLocationRelativeTo(null);   
+        OutputFrame.setVisible(true);
+        OutputFrame.setAlwaysOnTop(true);
+        //System.out.println("QUII->-Inizio\n"+listModel.getSize()+" "+evt.getLastIndex()+"\n"+evt.getSource());
+        ListEntry tmpListEntry;
+        if ((evt.getLastIndex()!=GL.getListProcStatuSelection()&& (evt.getLastIndex()>=0 && evt.getLastIndex()<listModel.getSize())) ){
+                tmpListEntry=  listModel.get(evt.getLastIndex());
+                GL.setListProcStatuSelection(evt.getLastIndex());
+                
+                   //System.out.println("\t------- Selected Last\n");
+        }
+        else    {
+                if (evt.getFirstIndex()>=0 && evt.getFirstIndex()<listModel.getSize()){
+                tmpListEntry=  listModel.get(evt.getFirstIndex());
+                 //System.out.println("\t------- Selected First\n");
+                GL.setListProcStatuSelection(evt.getFirstIndex());
+                }
+                else
+                    return;
+        }
+        
+        if (tmpListEntry.status.equals("Running") || tmpListEntry.status.equals("Finished")){ 
+            //System.out.println("\tQUII->-RUNNING\n");
+            String text="";
+            OutputText.setEnabled(true);
+            try{
+                File file = new File( tmpListEntry.path+"/Routput.Rout");
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String strLine;
+                //Read File Line By Line
+                while ((strLine = reader.readLine()) != null)   {
+                    text+="\n"+strLine;
+                }
+                reader.close();    
+            }
+            catch (Exception e){//Catch exception if any
+                //System.err.println("Error: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error reading R output file","Error",JOptionPane.ERROR_MESSAGE);
+            }
+            OutputText.setText(text);
+            if (tmpListEntry.status.equals("Finished"))
+            {
+                try{
+                    File file = new File( tmpListEntry.path+"/dockerID");
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    String strLine;
+                    //Read File Line By Line
+                    while ((strLine = reader.readLine()) != null)   {
+                    text+="\n"+strLine;
+                    }
+                    reader.close();
+                 //   DlogButton.setEnabled(true);
+                }
+                catch (Exception e){//Catch exception if any
+                    System.err.println("Error: " + e.getMessage());
+                    //JOptionPane.showMessageDialog(this, "Error reading R output file","Error",JOptionPane.ERROR_MESSAGE);
+                }      
+            }
+        }
+        else
+        {
+          OutputText.setEnabled(false);  
+          //System.out.println("\tQUIFINE WAITING\n");
+        }
+        //System.out.println("QUIFINE\n");
+        //GL.setListProcStatuSelection(evt.getLastIndex());
+        //System.out.println("End ProcListValueChanged\n");
+        }
+        }
+    }//GEN-LAST:event_ProcListValueChanged
+
+    private void ReloadOutputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReloadOutputActionPerformed
+        ListEntry tmpListEntry =  listModel.get(GL.getListProcStatuSelection());
+        //
+        if (tmpListEntry.status.equals("Running") || tmpListEntry.status.equals("Finished")){
+             OutputText.setEnabled(true);
+            String text="";
+            try{
+                File file = new File( tmpListEntry.path+"/Routput.Rout");
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String strLine;
+                //Read File Line By Line
+                while ((strLine = reader.readLine()) != null)   {
+                    text+="\n"+strLine;
+                }
+                reader.close();    
+            }
+            catch (Exception e){//Catch exception if any
+                System.err.println("Error: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error reading file","Error",JOptionPane.ERROR_MESSAGE);
+                
+            }
+            OutputText.setText(text);
+        }
+        ReloadOutput.setSelected(false);
+    }//GEN-LAST:event_ReloadOutputActionPerformed
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+     int pos=GL.getListProcStatuSelection();
+        //System.out.println("Pos:"+pos+"\n");
+        int tmpPos=-1;
+        for(int i=0;i<listProcRunning.size();i++){
+           
+            if (listProcRunning.get(i).pos>pos){
+                listProcRunning.get(i).pos--;
+            }
+            else
+                if (listProcRunning.get(i).pos==pos){
+                    tmpPos=i;
+                }
+        }
+        if (tmpPos!=-1){
+            //try{
+            //if Docker is runnning
+            String[] cmd = {"/bin/bash","-c"," "};
+            try{
+                    File file = new File(listProcRunning.get(tmpPos).path+"/dockerID");
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    String dockerID = reader.readLine();
+                    cmd[2]="docker kill " +dockerID +" ; rm " + listProcRunning.get(tmpPos).path+"/dockerID"; 
+                    Runtime.getRuntime().exec(cmd);
+                    reader.close();    
+                }
+            catch (IOException e){//Catch exception if any
+                System.out.println("No docker running \n");
+                } 
+            long pID=getPidOfProcess(listProcRunning.get(tmpPos).pr);
+            //System.out.println("lanciato PID:"+pID +"\n");  
+            if (pID!=-1){
+                try{
+                   cmd[2]="kill $(./list_descendants.sh " +Long.toString(pID)+")"; 
+                   Runtime.getRuntime().exec(cmd);
+                }
+                catch(IOException e){
+                    System.err.println("Error in Killing the process children:" + e);
+                }
+                
+            }
+            try{
+                    File file = new File(listProcRunning.get(tmpPos).path+"/tempFolderID");
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    String tempFolderID = reader.readLine();
+                    if (!(tempFolderID.equals(""))){
+                        cmd[2]="rm -R " + tempFolderID +" ; rm " + listProcRunning.get(tmpPos).path+"/tempFolderID"; 
+                        Runtime.getRuntime().exec(cmd);
+                    }
+                    reader.close();    
+                }    
+            catch (IOException e){//Catch exception if any
+                System.out.println("No temporary folder\n");
+                } 
+            listProcRunning.remove(tmpPos);
+            tmpPos=-1;
+        }
+        
+        for(int i=0;i<listProcWaiting.size();i++){
+            if (listProcWaiting.get(i).pos>pos){
+                listProcWaiting.get(i).pos--;    
+            }
+            else
+                if (listProcWaiting.get(i).pos==pos){
+                    tmpPos=i;
+                } 
+        }
+         if (tmpPos!=-1){
+            listProcWaiting.remove(tmpPos);
+            tmpPos=-1;
+        }
+        //System.out.println("Pos1:"+pos+"\n");
+        GL.setListProcStatuSelection(-1);
+        listModel.remove(pos);
+        //System.out.println("Pos2:"+pos+"\n");
+        OutputFrame.setVisible(false);
+        OutputText.setText("");
+        GL.setAvoidProcListValueChanged(-1);
+        ProcList.clearSelection();
+        GL.setAvoidProcListValueChanged(0);
+    }//GEN-LAST:event_jButton16ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -806,8 +1112,11 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField OParallelTextField;
     private javax.swing.JTextField OScratchTextField;
     private javax.swing.JTextField OThreadTextField;
+    private javax.swing.JFrame OutputFrame;
+    private javax.swing.JTextArea OutputText;
     private javax.swing.JList<ListEntry> ProcList;
     private javax.swing.JScrollPane ProcessScrollPane1;
+    private javax.swing.JButton ReloadOutput;
     private javax.swing.JTextField SInputFolder;
     private javax.swing.JScrollPane SMN1ScrollPane1;
     private javax.swing.JPanel SMN1analisys;
@@ -819,6 +1128,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
+    private javax.swing.JButton jButton16;
+    private javax.swing.JButton jButton17;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -845,6 +1156,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
     
@@ -869,26 +1181,10 @@ public class MainFrame extends javax.swing.JFrame {
         OScratchTextField.setText(GS.getScratchFolder());
         // Adapter3TextField.setText(GS.getDefaultAdapter3());  
     }
+   
     
-       public void save(){
-        
-        try{
-            FileWriter fw = new FileWriter(".4SeqGUI");
-            BufferedWriter bw = new BufferedWriter(fw);
-            //bw.write(DefaultThread+"\n");
-            //bw.write(MaxSizelistProcRunning+"\n"); 
-           // bw.write(DefaultAdapter5+"\n");
-            //bw.write(DefaultAdapter3+"\n"); 
-            bw.close();    
-        }
-        catch (IOException e) {
-            JOptionPane.showMessageDialog(OConfigurationFrame, "Error saving file","Error",JOptionPane.ERROR_MESSAGE);
-        }
-    }
-       
-       
-
-class GlobalSetting{
+    
+    class GlobalSetting{
     private int DefaultThread= 8;
     private int MaxSizelistProcRunning=1;
     private String ScratchFolder="";
@@ -897,7 +1193,7 @@ class GlobalSetting{
     public GlobalSetting(){
     boolean findFile=false;    
     try{
-                File file = new File(".4SeqGUI");
+                File file = new File(".DiaseqGUI");
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 int line=0;
                 //Read File Line By Line
@@ -934,7 +1230,7 @@ class GlobalSetting{
     public void save(){
         
         try{
-            FileWriter fw = new FileWriter(".4SeqGUI");
+            FileWriter fw = new FileWriter(".DiaseqGUI");
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(DefaultThread+"\n");
             bw.write(MaxSizelistProcRunning+"\n"); 
@@ -1200,6 +1496,37 @@ class ListEntry
         }
  
     }
+    
+      class MyFileUpdate extends TimerTask{
+       public void run() {
+        if (GL.getListProcStatuSelection()>=0){
+            ListEntry tmpListEntry =  listModel.get(GL.getListProcStatuSelection());
+            //
+            if (tmpListEntry.status.equals("Running") || tmpListEntry.status.equals("Finished")){
+             OutputText.setEnabled(true);
+            String text="";
+            try{
+                File file = new File( tmpListEntry.path+"/Routput.Rout");
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String strLine;
+                //Read File Line By Line
+                while ((strLine = reader.readLine()) != null)   {
+                    text+="\n"+strLine;
+                }
+                reader.close();    
+            }
+            catch (Exception e){//Catch exception if any
+                //To avoid to recall infinitelly this error
+                outputTime.cancel();
+                System.err.println("Error: " + e.getMessage());
+                JOptionPane.showMessageDialog(OutputFrame, "Error reading file","Error",JOptionPane.ERROR_MESSAGE);
+                }
+            OutputText.setText(text);
+            }
+            ReloadOutput.setSelected(false);   
+        }
+      }
+  }
 }
 
 
